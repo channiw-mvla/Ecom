@@ -13,6 +13,8 @@ require('dotenv').config();
 
 require('./config/mongoose.config');
 require('./routes/user.route')(app);
+require('./routes/product.routes')(app);
+
 
 
 app.listen(port, () => console.log(`Listening on port: ${port}`) );
