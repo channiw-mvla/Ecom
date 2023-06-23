@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -9,16 +9,46 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import axios from 'axios';
 
 const defaultTheme = createTheme();
 
 export default function Register() {
+  const [user, setUser] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
+    axios
+      .post(
+        'http://localhost:8000/api/register',
+        {
+          firstName: data.get('firstName'),
+          lastName: data.get('lastName'),
+          email: data.get('email'),
+          password: data.get('password'),
+          confirmPassword: data.get('confirmPassword'),
+        },
+        { withCredentials: true }
+      )
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const handleChange = (event) => {
+    setUser({
+      ...user,
+      [event.target.name]: event.target.value,
     });
   };
 
@@ -55,6 +85,7 @@ export default function Register() {
                   fullWidth
                   id='firstName'
                   label='First Name'
+                  onChange={handleChange}
                   autoFocus
                 />
               </Grid>
@@ -66,6 +97,7 @@ export default function Register() {
                   label='Last Name'
                   name='lastName'
                   autoComplete='family-name'
+                  onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -76,6 +108,7 @@ export default function Register() {
                   label='Email Address'
                   name='email'
                   autoComplete='email'
+                  onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -87,6 +120,19 @@ export default function Register() {
                   type='password'
                   id='password'
                   autoComplete='new-password'
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name='confirmPassword'
+                  label='Confirm Password'
+                  type='password'
+                  id='password'
+                  autoComplete='confirm-password'
+                  onChange={handleChange}
                 />
               </Grid>
             </Grid>

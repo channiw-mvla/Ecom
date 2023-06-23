@@ -1,4 +1,6 @@
-import * as React from 'react';
+import { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -14,12 +16,37 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 const defaultTheme = createTheme();
 
 export default function SignIn() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState({
+    email: '',
+    password: '',
+  });
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
+    axios
+      .post(
+        'http://localhost:8000/api/login',
+        {
+          email: data.get('email'),
+          password: data.get('password'),
+        },
+        { withCredentials: true }
+      )
+      .then((response) => {
+        console.log(response);
+        navigate('/');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const handleChange = (event) => {
+    setUser({
+      ...user,
+      [event.target.name]: event.target.value,
     });
   };
 
@@ -55,6 +82,7 @@ export default function SignIn() {
               label='Email Address'
               name='email'
               autoComplete='email'
+              onChange={handleChange}
               autoFocus
             />
             <TextField
@@ -66,6 +94,7 @@ export default function SignIn() {
               type='password'
               id='password'
               autoComplete='current-password'
+              onChange={handleChange}
             />
             <Button
               type='submit'
