@@ -17,7 +17,7 @@ export default function Home() {
       <div>
         <Navbar />
         {/* <h1>Home</h1> */}
-        <div class="container my-3 ">
+        <div className="container my-3 ">
           {products.length === 0 ?
             (
               <div className="d-flex justify-content-center">
@@ -26,14 +26,11 @@ export default function Home() {
             ):
             (
                 <div className="row row-cols-1 row-cols-md-3 g-4">
-                  {products.map((product,index) => {
-                    return(
-                      <div class="col-md-4">
-                          < ProductView key={index} image1={product.images[0]} image2={product.images[1]} name={product.name} price={product.price} sizes = {product.sizes}/>
-                        </div>
-                        );
-                        
-                      })}
+                  {products.map((product) => (
+                      <div className="col-md-4" key={product._id}>
+                        < ProductView image1={product.images[0]} image2={product.images[1]} name={product.name} price={product.price} sizes = {product.sizes}/>
+                      </div>                        
+                  ))}
                 </div>
             )
           }
