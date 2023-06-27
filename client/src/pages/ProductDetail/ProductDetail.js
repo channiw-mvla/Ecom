@@ -1,31 +1,78 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import './ProductDetail.css';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
 import Header from '../../components/Navbar/Navbar';
+
+const initialState = {
+  quantity: 1,
+  product: {},
+  firstPrice: 0,
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'SET_PRODUCT':
+      return {
+        ...state,
+        product: action.payload,
+      };
+    case 'SET_FIRST_PRICE':
+      return {
+        ...state,
+        firstPrice: action.payload,
+      };
+    case 'INCREASE_QUANTITY':
+      return {
+        ...state,
+        quantity: state.quantity + 1,
+        product: {
+          ...state.product,
+          price: state.product.price + state.firstPrice,
+        },
+      };
+    case 'DECREASE_QUANTITY':
+      if (state.quantity > 1) {
+        return {
+          ...state,
+          quantity: state.quantity - 1,
+          product: {
+            ...state.product,
+            price: state.product.price - state.firstPrice,
+          },
+        };
+      }
+      return state;
+    default:
+      return state;
+  }
+}
+
 export default function ProductDetail() {
   const { id } = useParams();
-  const [quantity, setQuantity] = useState(1);
-  const [product, setProduct] = useState({});
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { quantity, product } = state;
 
   useEffect(() => {
     const getProductById = async () => {
-      await axios
-        .get('http://localhost:8000/api/products/' + id)
-        .then((res) => setProduct(res.data))
-        .catch((err) => console.log(err));
+      try {
+        const res = await axios.get('http://localhost:8000/api/products/' + id);
+        dispatch({ type: 'SET_PRODUCT', payload: res.data });
+        dispatch({ type: 'SET_FIRST_PRICE', payload: res.data.price });
+      } catch (err) {
+        console.log(err);
+      }
     };
     getProductById();
   }, [id]);
 
   const increaseQuantity = () => {
-    setQuantity(quantity + 1);
+    dispatch({ type: 'INCREASE_QUANTITY' });
   };
+
   const decreaseQuantity = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
-    }
+    dispatch({ type: 'DECREASE_QUANTITY' });
   };
 
   return (
@@ -64,7 +111,9 @@ export default function ProductDetail() {
                   type='text'
                   className='quantity-input'
                   value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
+                  onChange={(e) =>
+                    dispatch({ type: 'SET_QUANTITY', payload: e.target.value })
+                  }
                 />
                 <button onClick={increaseQuantity} className='quantity-btn'>
                   +
