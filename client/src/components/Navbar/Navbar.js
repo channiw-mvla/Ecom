@@ -47,7 +47,7 @@ export default function Navbar() {
               </a>
             </li>
             <li className='navigation-list-item'>
-              <a href='/'>
+              <a href='/cart'>
                 <ShoppingCartOutlinedIcon />
               </a>
             </li>

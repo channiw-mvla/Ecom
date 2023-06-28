@@ -1,16 +1,17 @@
 import React, { useEffect, useReducer } from 'react';
 import './ProductDetail.css';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import Header from '../../components/Navbar/Navbar';
+import { useCookies } from 'react-cookie';
 
 const initialState = {
   quantity: 1,
   product: {},
   firstPrice: 0,
+  selectedSize: 0
 };
-
 function reducer(state, action) {
   switch (action.type) {
     case 'SET_PRODUCT':
@@ -44,15 +45,23 @@ function reducer(state, action) {
         };
       }
       return state;
+    case 'SET_SELECTED_SIZE':
+      return {
+        ...state,
+        selectedSize: action.payload,
+      };
     default:
       return state;
   }
 }
 
+
 export default function ProductDetail() {
-  const { id } = useParams();
+  const { id, size} = useParams();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { quantity, product } = state;
+  const { quantity, product, selectedSize  } = state;
+  const [cookies,setCookie] = useCookies(['cart']);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getProductById = async () => {
@@ -60,12 +69,13 @@ export default function ProductDetail() {
         const res = await axios.get('http://localhost:8000/api/products/' + id);
         dispatch({ type: 'SET_PRODUCT', payload: res.data });
         dispatch({ type: 'SET_FIRST_PRICE', payload: res.data.price });
+        dispatch({ type: 'SET_SELECTED_SIZE', payload: size ? size : res.data.sizes[0] });
       } catch (err) {
         console.log(err);
       }
     };
     getProductById();
-  }, [id]);
+  }, [id,size]);
 
   const increaseQuantity = () => {
     dispatch({ type: 'INCREASE_QUANTITY' });
@@ -74,6 +84,21 @@ export default function ProductDetail() {
   const decreaseQuantity = () => {
     dispatch({ type: 'DECREASE_QUANTITY' });
   };
+  const selectSize = (size) => {
+    dispatch({ type: 'SET_SELECTED_SIZE', payload: size });
+  };
+
+  const handleCart = () => {
+    if(selectedSize !== '' ){
+      const cartItems = cookies.cart || [];
+      if(cartItems.length === 0)
+        setCookie('cart', [{"id":product._id,"quantity":quantity,"size":selectedSize}]);
+      else
+        setCookie('cart', [...cartItems, {"id":product._id,"quantity":quantity,"size":selectedSize}]);
+      navigate('/cart')
+    }
+
+  }
 
   return (
     <>
@@ -95,9 +120,13 @@ export default function ProductDetail() {
             <div className='product-detail-right-size'>
               <div className='product-detail-right-size-box'>
                 {product.sizes?.map((size, index) => (
-                  <button className='product-size-btn' key={index}>
-                    {size}
-                  </button>
+                  <button
+                    className={`product-size-btn ${selectedSize === size ? 'selected' : ''}`}
+                    key={index}
+                    onClick={() => selectSize(size)}
+                >
+                  {size}
+                </button>
                 ))}
               </div>
             </div>
@@ -120,7 +149,7 @@ export default function ProductDetail() {
                 </button>
               </div>
             </div>
-            <button className='add-to-cart-btn'>Add to cart</button>
+            <button className='add-to-cart-btn' onClick={() => handleCart()}>Add to cart</button>
             <div className='product-detail-right-description'>
               <p>Easy. Cool. Breathable.</p>
               <p>
