@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -54,6 +55,11 @@ export default function Register() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
+      <div className='d-flex'>
+        <Link to={"/"} className='btn btn-secondary offset-11'>Home</Link>
+        <Link to={"/signin"} className='btn btn-success ms-1'>Login</Link>
+      </div>
+
       <Container component='main' maxWidth='xs'>
         <CssBaseline />
         <Box

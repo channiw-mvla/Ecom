@@ -55,7 +55,7 @@ function reducer(state, action) {
 }
 
 
-export default function ProductDetail() {
+export default function UpdateProduct() {
   const { id, size } = useParams();
   const [state, dispatch] = useReducer(reducer, initialState);
   const { quantity, product, selectedSize } = state;
@@ -65,7 +65,7 @@ export default function ProductDetail() {
   useEffect(() => {
     const getProductById = async () => {
       try {
-        const res = await axios.get('http://localhost:8000/api/products/' + id);
+        const res = await axios.patch('http://localhost:8000/api/products/' + id);
         dispatch({ type: 'SET_PRODUCT', payload: res.data });
         dispatch({ type: 'SET_FIRST_PRICE', payload: res.data.price });
         dispatch({ type: 'SET_SELECTED_SIZE', payload: size ? size : res.data.sizes[0] });
