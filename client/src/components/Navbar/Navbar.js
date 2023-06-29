@@ -23,7 +23,7 @@ export default function Navbar() {
               </a>
             </li>
             <li className='navigation-list-item'>
-              <a className='menu-link' href='/'>
+              <a className='menu-link' href='/bestsellers'>
                 Bestsellers
               </a>
             </li>
